@@ -31,6 +31,7 @@ export default function StoreLogo({
   storeName = 'China Unique Store',
   lightLogoUrl = '',
   darkLogoUrl = '',
+  logoUrl = '',
   logoScalePercent = 100,
   variant = 'dark-surface',
   className,
@@ -41,8 +42,8 @@ export default function StoreLogo({
   const prefersLightLogo = variant === 'dark-surface';
   const preferredLogoUrl = prefersLightLogo ? lightLogoUrl : darkLogoUrl;
   const fallbackLogoUrl = prefersLightLogo ? darkLogoUrl : lightLogoUrl;
-  const logoUrl = String(preferredLogoUrl || '').trim() || String(fallbackLogoUrl || '').trim();
-  const hasLogo = Boolean(String(logoUrl || '').trim());
+  const resolvedLogoUrl = String(logoUrl || '').trim() || String(preferredLogoUrl || '').trim() || String(fallbackLogoUrl || '').trim();
+  const hasLogo = Boolean(String(resolvedLogoUrl || '').trim());
   const baseHeight = compact ? 52 : 48;
   const safeScalePercent = Math.min(200, Math.max(60, Number(logoScalePercent) || 100));
   const logoScale = 1 + ((safeScalePercent - 100) / 100) * 1.9;
@@ -55,7 +56,7 @@ export default function StoreLogo({
           style={{ height: `${baseHeight}px` }}
         >
           <Image
-            src={logoUrl}
+            src={resolvedLogoUrl}
             alt={storeName || 'Store logo'}
             width={264}
             height={80}

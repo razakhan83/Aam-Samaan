@@ -378,6 +378,8 @@ async function getSettingsRaw() {
     businessAddress: '',
     lightLogoUrl: '',
     darkLogoUrl: '',
+    navbarLogoUrl: '',
+    footerLogoUrl: '',
     logoScalePercent: 100,
     whatsappNumber: '',
     facebookPageUrl: '',
@@ -403,13 +405,24 @@ async function getSettingsRaw() {
       settings = settings.toObject();
     }
 
+    const normalizedLightLogoUrl = normalizeLogoUrl(settings.lightLogoUrl);
+    const normalizedDarkLogoUrl = normalizeLogoUrl(settings.darkLogoUrl);
+    const normalizedNavbarLogoUrl = normalizeLogoUrl(
+      settings.navbarLogoUrl || settings.lightLogoUrl || settings.darkLogoUrl
+    );
+    const normalizedFooterLogoUrl = normalizeLogoUrl(
+      settings.footerLogoUrl || settings.darkLogoUrl || settings.lightLogoUrl
+    );
+
     return {
       _id: settings._id.toString(),
       storeName: settings.storeName || 'China Unique Store',
       supportEmail: settings.supportEmail || '',
       businessAddress: settings.businessAddress || '',
-      lightLogoUrl: normalizeLogoUrl(settings.lightLogoUrl),
-      darkLogoUrl: normalizeLogoUrl(settings.darkLogoUrl),
+      lightLogoUrl: normalizedLightLogoUrl,
+      darkLogoUrl: normalizedDarkLogoUrl,
+      navbarLogoUrl: normalizedNavbarLogoUrl,
+      footerLogoUrl: normalizedFooterLogoUrl,
       logoScalePercent: Math.min(200, Math.max(60, Number(settings.logoScalePercent || 100))),
       whatsappNumber: settings.whatsappNumber || '',
       facebookPageUrl: settings.facebookPageUrl || '',
@@ -1907,6 +1920,8 @@ export async function getAdminSettings() {
     businessAddress: settings.businessAddress || '',
     lightLogoUrl: normalizeLogoUrl(settings.lightLogoUrl),
     darkLogoUrl: normalizeLogoUrl(settings.darkLogoUrl),
+    navbarLogoUrl: normalizeLogoUrl(settings.navbarLogoUrl || settings.lightLogoUrl || settings.darkLogoUrl),
+    footerLogoUrl: normalizeLogoUrl(settings.footerLogoUrl || settings.darkLogoUrl || settings.lightLogoUrl),
     logoScalePercent: Math.min(200, Math.max(60, Number(settings.logoScalePercent || 100))),
     whatsappNumber: settings.whatsappNumber || '',
     facebookPageUrl: settings.facebookPageUrl || '',

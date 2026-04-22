@@ -346,9 +346,17 @@ export default function AdminSettingsClient({ initialSettings, isConfiguredAdmin
       const dataUrl = await readFileAsDataUrl(file);
       if (!dataUrl) return;
 
-      const image = await uploadImageDataUrl(dataUrl, 'kifayatly_branding');
+      const image = await uploadImageDataUrl(dataUrl, 'kifayatly_branding', {
+        generatePlaceholder: false,
+      });
       handleChange(field, image.url);
-      toast.success(`${field === 'lightLogoUrl' ? 'Light' : 'Dark'} logo uploaded.`);
+      const logoUploadLabels = {
+        lightLogoUrl: 'Light logo',
+        darkLogoUrl: 'Dark logo',
+        navbarLogoUrl: 'Navbar logo',
+        footerLogoUrl: 'Footer logo',
+      };
+      toast.success(`${logoUploadLabels[field] || 'Logo'} uploaded.`);
     } catch (error) {
       console.error(`Failed to upload ${field}`, error);
       toast.error(error.message || 'Failed to upload logo.');
@@ -499,34 +507,34 @@ export default function AdminSettingsClient({ initialSettings, isConfiguredAdmin
         <SettingSection
           icon={ImagePlus}
           title="Logo Configuration"
-          description="Upload both storefront logo variants. Saved Cloudinary URLs are optimized and reused across light and dark surfaces."
+          description="Set separate logos for the navbar and footer. Your old light and dark logo fields remain as automatic fallback until you replace them."
         >
           <div className="grid gap-4 lg:grid-cols-2">
             <LogoUploadCard
-              field="lightLogoUrl"
-              label="Light Mode Logo"
-              hint="Used on dark backgrounds like the footer and dark brand surfaces."
+              field="navbarLogoUrl"
+              label="Navbar Logo"
+              hint="Shown in the storefront navbar and menu drawer. Best for dark backgrounds."
               surfaceClassName="bg-[#082118]"
               imageClassName="h-auto max-h-16 w-auto object-contain"
-              value={form.lightLogoUrl}
+              value={form.navbarLogoUrl}
               onChange={handleChange}
-              uploading={uploadingField === 'lightLogoUrl'}
+              uploading={uploadingField === 'navbarLogoUrl'}
               onUpload={handleLogoUpload}
             />
             <LogoUploadCard
-              field="darkLogoUrl"
-              label="Dark Mode Logo"
-              hint="Used on light backgrounds like the navbar and admin previews."
+              field="footerLogoUrl"
+              label="Footer Logo"
+              hint="Shown in the storefront footer. Best for light backgrounds."
               surfaceClassName="bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(242,246,244,0.98))]"
               imageClassName="h-auto max-h-16 w-auto object-contain"
-              value={form.darkLogoUrl}
+              value={form.footerLogoUrl}
               onChange={handleChange}
-              uploading={uploadingField === 'darkLogoUrl'}
+              uploading={uploadingField === 'footerLogoUrl'}
               onUpload={handleLogoUpload}
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            The storefront automatically switches between these two logos based on the background.
+            If these are empty, the site falls back to your older light and dark logo settings automatically.
           </p>
         </SettingSection>
 

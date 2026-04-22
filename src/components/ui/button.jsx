@@ -11,7 +11,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        default: "bg-primary text-primary-foreground shadow-[0_14px_34px_-20px_rgba(17,17,17,0.68)] hover:bg-[color:color-mix(in_oklab,var(--color-primary)_92%,white)]",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
@@ -19,7 +19,7 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+          "bg-primary text-primary-foreground shadow-[0_14px_34px_-20px_rgba(17,17,17,0.68)] hover:bg-[color:color-mix(in_oklab,var(--color-primary)_92%,white)] focus-visible:border-ring focus-visible:ring-ring/50",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

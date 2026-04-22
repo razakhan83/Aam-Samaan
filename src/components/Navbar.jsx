@@ -140,6 +140,7 @@ function AnnouncementMarquee({ items = [] }) {
 function NavbarContent({
   categories,
   storeName = 'China Unique Store',
+  navbarLogoUrl = '',
   lightLogoUrl = '',
   darkLogoUrl = '',
   logoScalePercent = 100,
@@ -215,8 +216,8 @@ function NavbarContent({
     return cn(
       'inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-sm transition-[color,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] active:scale-[0.96]',
       pathname === path
-        ? 'font-bold text-primary'
-        : 'font-medium text-muted-foreground hover:text-foreground'
+        ? 'font-bold text-white'
+        : 'font-medium text-white/78 hover:text-white'
     );
   }
 
@@ -224,8 +225,8 @@ function NavbarContent({
     return cn(
       'inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-sm transition-[color,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] active:scale-[0.96]',
       isActive
-        ? 'font-bold text-primary'
-        : 'font-medium text-muted-foreground hover:text-foreground'
+        ? 'font-bold text-white'
+        : 'font-medium text-white/78 hover:text-white'
     );
   }
 
@@ -249,16 +250,16 @@ function NavbarContent({
     { href: '/products', label: 'All Products', icon: LayoutGrid },
   ];
   const mobileMenuButtonClass =
-    'min-h-10 rounded-xl px-2.5 py-2 text-sidebar-foreground transition-[background-color,color,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-sidebar-accent/45 hover:text-sidebar-accent-foreground data-[active=true]:text-sidebar-primary-foreground active:scale-[0.99]';
+    'min-h-10 rounded-xl px-2.5 py-2 text-sidebar-foreground transition-[background-color,color,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-white/10 hover:text-white data-[active=true]:bg-white/14 data-[active=true]:text-white data-[active=true]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)] active:scale-[0.99]';
   const navActionButtonClass =
-    'nav-icon-button relative rounded-2xl border border-border/60 bg-card/85 p-0 text-foreground transition-[transform,background-color,border-color,color] duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:border-primary/18 hover:bg-background hover:text-foreground active:scale-[0.96]';
+    'nav-icon-button relative rounded-2xl border border-white/14 bg-white/6 p-0 text-white transition-[transform,background-color,border-color,color] duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:border-white/30 hover:bg-white/12 hover:text-white active:scale-[0.96]';
   const announcementItems = normalizeAnnouncementItems(announcementBarMessages, announcementBarText);
   const showAnnouncementBar = announcementBarEnabled && announcementItems.length > 0;
 
   return (
-    <div className="navbar-shell sticky top-0 z-40 overflow-visible bg-card shadow-[0_1px_0_color-mix(in_oklab,var(--color-border)_72%,white)]">
+    <div className="navbar-shell sticky top-0 z-40 overflow-visible bg-primary text-primary-foreground shadow-[0_1px_0_rgba(255,255,255,0.08)]">
       {showAnnouncementBar ? (
-        <div className="relative flex min-h-9 items-center bg-primary py-2 text-primary-foreground shadow-[inset_0_-1px_0_rgba(255,255,255,0.08)] before:absolute before:-top-px before:left-0 before:right-0 before:h-px before:bg-primary before:content-['']">
+        <div className="relative flex min-h-9 items-center bg-accent py-2 text-accent-foreground shadow-[inset_0_-1px_0_rgba(255,255,255,0.14)] before:absolute before:-top-px before:left-0 before:right-0 before:h-px before:bg-accent before:content-['']">
           <AnnouncementMarquee items={announcementItems} />
         </div>
       ) : null}
@@ -270,6 +271,7 @@ function NavbarContent({
 
         <StoreLogo
           storeName={storeName}
+          logoUrl={navbarLogoUrl}
           lightLogoUrl={lightLogoUrl}
           darkLogoUrl={darkLogoUrl}
           logoScalePercent={logoScalePercent}
@@ -341,7 +343,7 @@ function NavbarContent({
             className={cn(
               `nav-search-toggle hidden overflow-hidden md:inline-flex ${navActionButtonClass}`,
               isSearchOpen
-                ? 'is-open border-primary/18 bg-background text-primary'
+                ? 'is-open border-white/30 bg-white/12 text-white'
                 : ''
             )}
           >
@@ -378,15 +380,15 @@ function NavbarContent({
         </div>
       </header>
 
-      <div
-        data-state={isSearchOpen ? 'open' : 'closed'}
-        aria-hidden={!isSearchOpen}
-        className={cn(
-          'navbar-search-shell absolute inset-x-0 top-full z-10 grid border-t bg-background/96 backdrop-blur transition-[grid-template-rows,opacity,border-color] duration-300 ease-[cubic-bezier(0.2,0,0,1)] md:bg-background/80',
+        <div
+          data-state={isSearchOpen ? 'open' : 'closed'}
+          aria-hidden={!isSearchOpen}
+          className={cn(
+          'navbar-search-shell absolute inset-x-0 top-full z-10 grid border-t border-white/10 bg-primary/98 backdrop-blur transition-[grid-template-rows,opacity,border-color] duration-300 ease-[cubic-bezier(0.2,0,0,1)] md:bg-primary/92',
           isSearchOpen
             ? 'md:relative md:inset-auto md:top-auto md:z-auto'
             : 'md:absolute md:inset-x-0 md:top-full md:z-10',
-          isSearchOpen ? 'grid-rows-[1fr] overflow-visible border-border/70 opacity-100' : 'pointer-events-none grid-rows-[0fr] overflow-hidden border-transparent opacity-0'
+          isSearchOpen ? 'grid-rows-[1fr] overflow-visible opacity-100' : 'pointer-events-none grid-rows-[0fr] overflow-hidden border-transparent opacity-0'
         )}
       >
         <div className="overflow-visible">
@@ -403,13 +405,14 @@ function NavbarContent({
           <SheetContent
             side="left"
             showCloseButton={false}
-            className="w-screen min-w-0 max-w-none overflow-hidden border-r border-sidebar-border bg-sidebar p-0 text-sidebar-foreground sm:max-w-none md:w-[min(76vw,22rem)] md:min-w-[16rem] md:max-w-[22rem]"
+            className="w-screen min-w-0 max-w-none overflow-hidden border-r border-white/10 bg-sidebar p-0 text-sidebar-foreground sm:max-w-none md:w-[min(76vw,22rem)] md:min-w-[16rem] md:max-w-[22rem]"
           >
             <Sidebar className="h-full bg-transparent text-inherit">
               <SidebarHeader className="border-b border-sidebar-border px-5 pb-4 pt-5">
                 <StoreLogo
                   href="/"
                   storeName={storeName}
+                  logoUrl={navbarLogoUrl}
                   lightLogoUrl={lightLogoUrl}
                   darkLogoUrl={darkLogoUrl}
                   logoScalePercent={logoScalePercent}
@@ -448,7 +451,7 @@ function NavbarContent({
                       <SidebarGroupContent>
                     <Accordion className="w-full">
                           <AccordionItem value="categories" className="border-none">
-                            <AccordionTrigger className="rounded-xl px-2.5 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/45 hover:text-sidebar-accent-foreground hover:no-underline [&[aria-expanded=true]]:bg-sidebar-accent/35">
+                            <AccordionTrigger className="rounded-xl px-2.5 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/45 hover:text-sidebar-accent-foreground hover:no-underline [&[aria-expanded=true]]:bg-white/10 [&[aria-expanded=true]]:text-white">
                               <div className="flex items-center gap-3">
                                 <LayoutGrid className="size-4" />
                                 <span>Shop by Category</span>
@@ -544,6 +547,7 @@ function NavbarContent({
 export default function Navbar({
   categories = [],
   storeName = 'China Unique Store',
+  navbarLogoUrl = '',
   lightLogoUrl = '',
   darkLogoUrl = '',
   logoScalePercent = 100,
@@ -555,6 +559,7 @@ export default function Navbar({
     <NavbarContent
       categories={categories}
       storeName={storeName}
+      navbarLogoUrl={navbarLogoUrl}
       lightLogoUrl={lightLogoUrl}
       darkLogoUrl={darkLogoUrl}
       logoScalePercent={logoScalePercent}

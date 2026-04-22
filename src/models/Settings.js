@@ -52,6 +52,14 @@ const SettingsSchema = new mongoose.Schema(
             type: String,
             default: '',
         },
+        navbarLogoUrl: {
+            type: String,
+            default: '',
+        },
+        footerLogoUrl: {
+            type: String,
+            default: '',
+        },
         logoScalePercent: {
             type: Number,
             default: 100,
@@ -150,6 +158,8 @@ if (
         !cachedSettings.schema.path('announcementBarMessages') ||
         !cachedSettings.schema.path('lightLogoUrl') ||
         !cachedSettings.schema.path('darkLogoUrl') ||
+        !cachedSettings.schema.path('navbarLogoUrl') ||
+        !cachedSettings.schema.path('footerLogoUrl') ||
         !cachedSettings.schema.path('logoScalePercent')
     )
 ) {

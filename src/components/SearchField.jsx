@@ -35,7 +35,7 @@ export default function SearchField({
       <form onSubmit={onSubmit} className="flex items-center">
         <InputGroup
           className={cn(
-            "min-h-12 rounded-xl border-border/70 bg-card/95"
+            "min-h-12 rounded-xl border-white/80 bg-white shadow-[0_12px_28px_-24px_rgba(0,0,0,0.3)]"
           )}
         >
           <InputGroupInput
@@ -53,7 +53,7 @@ export default function SearchField({
             )}
             placeholder="Search for premium products"
           />
-          <InputGroupAddon align="inline-start" className="pl-4 text-primary/75">
+          <InputGroupAddon align="inline-start" className="pl-4 text-primary/72">
             <InputGroupText>
               <Search className="size-4" />
             </InputGroupText>
@@ -85,7 +85,7 @@ export default function SearchField({
       </form>
 
       {showSuggestions && isFocused && value.trim() ? (
-        <div className="absolute top-full z-40 mt-3 w-full overflow-hidden rounded-xl border border-border/80 bg-popover/98 shadow-lg backdrop-blur">
+          <div className="absolute top-full z-40 mt-3 w-full overflow-hidden rounded-xl border border-white/80 bg-popover shadow-lg">
           {suggestions.length ? (
             <ul className="divide-y divide-border/70">
               {suggestions.map((product, index) => {

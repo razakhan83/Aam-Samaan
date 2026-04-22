@@ -1,6 +1,11 @@
 import { optimizeCloudinaryUrl } from '@/lib/cloudinaryImage';
 
-export async function uploadImageDataUrl(dataUrl, folder = "kifayatly_products") {
+export async function uploadImageDataUrl(
+  dataUrl,
+  folder = "kifayatly_products",
+  options = {},
+) {
+  const { generatePlaceholder = true } = options;
   const signRes = await fetch(`/api/cloudinary-sign?folder=${encodeURIComponent(folder)}`);
   const signData = await signRes.json();
   if (!signRes.ok) {
@@ -26,25 +31,31 @@ export async function uploadImageDataUrl(dataUrl, folder = "kifayatly_products")
     throw new Error(uploadData.error?.message || "Cloudinary upload failed");
   }
 
-  const placeholderRes = await fetch("/api/images/placeholder", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ dataUrl }),
-  });
-  const placeholderData = await placeholderRes.json();
-  if (!placeholderRes.ok) {
-    throw new Error(
-      placeholderData.error || "Failed to generate image placeholder",
-    );
-  }
+  let blurDataURL = "";
 
-  if (!placeholderData.blurDataURL) {
-    throw new Error("Blur placeholder generation returned an empty result");
+  if (generatePlaceholder) {
+    const placeholderRes = await fetch("/api/images/placeholder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dataUrl }),
+    });
+    const placeholderData = await placeholderRes.json();
+    if (!placeholderRes.ok) {
+      throw new Error(
+        placeholderData.error || "Failed to generate image placeholder",
+      );
+    }
+
+    if (!placeholderData.blurDataURL) {
+      throw new Error("Blur placeholder generation returned an empty result");
+    }
+
+    blurDataURL = placeholderData.blurDataURL;
   }
 
   return {
     url: optimizeCloudinaryUrl(uploadData.secure_url),
     publicId: uploadData.public_id || "",
-    blurDataURL: placeholderData.blurDataURL,
+    blurDataURL,
   };
 }

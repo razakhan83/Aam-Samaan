@@ -102,8 +102,8 @@ function AccountMenuButton({ icon: Icon, label, onClick, destructive = false }) 
       className={cn(
         'h-auto w-full justify-start rounded-2xl px-4 py-3 text-left',
         destructive
-          ? 'text-destructive hover:bg-destructive/8 hover:text-destructive'
-          : 'text-foreground hover:bg-muted/70'
+          ? 'text-primary-foreground hover:bg-white/10 hover:text-white'
+          : 'text-primary-foreground hover:bg-white/10 hover:text-white'
       )}
     >
       <Icon data-icon="inline-start" />
@@ -130,7 +130,7 @@ export default function MobileBottomNav({
   const mobileDrawerContentClassName =
     'pointer-events-none z-[60] border-0 bg-transparent shadow-none md:hidden data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:max-h-none data-[vaul-drawer-direction=bottom]:rounded-none';
   const mobileDrawerPanelClassName =
-    'pointer-events-auto mx-auto w-full max-w-xl max-h-[calc(80vh-var(--mobile-bottom-nav-offset))] overflow-y-auto rounded-t-[1.35rem] border-t border-border/80 bg-popover text-sm text-popover-foreground shadow-[0_-18px_50px_rgba(15,23,42,0.12)]';
+    'pointer-events-auto mx-auto w-full max-w-xl max-h-[calc(80vh-var(--mobile-bottom-nav-offset))] overflow-y-auto rounded-t-[1.35rem] border-t border-white/10 bg-primary text-sm text-primary-foreground shadow-[0_-18px_50px_rgba(15,23,42,0.28)]';
   const mobileDrawerShellClassName =
     'pointer-events-none mx-auto flex w-full max-w-xl flex-col justify-end';
   const accountPanelOpen = session ? accountOpen : isAuthOpen;
@@ -162,13 +162,18 @@ export default function MobileBottomNav({
     closeAccountPanel();
   }
 
+  function handleDrawerNavigate(href) {
+    closeAccountPanel();
+    onNavigate?.(href);
+  }
+
   return (
     <>
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[120] md:hidden">
         <div className="pointer-events-auto relative z-[1] mx-auto w-full max-w-xl">
           <nav
             aria-label="Mobile navigation"
-            className="grid grid-cols-4 items-center gap-1 border-t border-border/70 bg-background px-1 pb-[calc(env(safe-area-inset-bottom)+0.7rem)] pt-2.5 shadow-[0_-8px_22px_rgba(15,23,42,0.06)]"
+            className="grid grid-cols-4 items-center gap-1 border-t border-border/70 bg-white px-1 pb-[calc(env(safe-area-inset-bottom)+0.7rem)] pt-2.5 shadow-[0_-8px_22px_rgba(15,23,42,0.06)]"
           >
             <MobileNavButton
               icon={Home}
@@ -243,36 +248,36 @@ export default function MobileBottomNav({
               <div className="flex flex-col gap-4 px-5 pb-4 pt-1">
                 {session ? (
                   <>
-                    <div className="flex items-center gap-3 rounded-[1.4rem] border border-border/70 bg-muted/45 px-4 py-3.5">
+                    <div className="flex items-center gap-3 rounded-[1.4rem] border border-white/12 bg-white/6 px-4 py-3.5">
                       <Avatar className="size-11">
                         <AvatarImage src={session.user?.image} alt={session.user?.name || 'User'} />
                         <AvatarFallback>{(session.user?.name || 'U').charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-foreground">{session.user?.name}</p>
-                        <p className="truncate text-xs text-muted-foreground">{session.user?.email}</p>
+                        <p className="truncate text-sm font-semibold text-primary-foreground">{session.user?.name}</p>
+                        <p className="truncate text-xs text-primary-foreground/66">{session.user?.email}</p>
                       </div>
                     </div>
                     <div className="flex flex-col gap-2">
                       <AccountMenuButton
                         icon={Settings}
                         label="Account Settings"
-                        onClick={() => onNavigate('/settings')}
+                        onClick={() => handleDrawerNavigate('/settings')}
                       />
                       <AccountMenuButton
                         icon={ShoppingBag}
                         label="My Orders"
-                        onClick={() => onNavigate('/orders')}
+                        onClick={() => handleDrawerNavigate('/orders')}
                       />
                       <AccountMenuButton
                         icon={Heart}
                         label="Wishlist"
-                        onClick={() => onNavigate('/wishlist')}
+                        onClick={() => handleDrawerNavigate('/wishlist')}
                       />
                     </div>
                     <Separator />
                     <div className="flex flex-col gap-2">
-                      <p className="px-1 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                      <p className="px-1 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-primary-foreground/56">
                         More actions
                       </p>
                       <AccountMenuButton
@@ -285,8 +290,8 @@ export default function MobileBottomNav({
                   </>
                 ) : (
                   <>
-                    <div className="rounded-[1.6rem] border border-border/70 bg-muted/45 px-4 py-4">
-                      <p className="text-sm leading-6 text-muted-foreground">
+                    <div className="rounded-[1.6rem] border border-white/12 bg-white/6 px-4 py-4">
+                      <p className="text-sm leading-6 text-primary-foreground/70">
                         Save the pieces you love, track your deliveries, and keep your next checkout effortless.
                       </p>
                     </div>

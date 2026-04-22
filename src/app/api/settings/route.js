@@ -35,13 +35,24 @@ function normalizeLogoUrl(value = '') {
 }
 
 function serializeSettings(settings) {
+    const normalizedLightLogoUrl = normalizeLogoUrl(settings.lightLogoUrl);
+    const normalizedDarkLogoUrl = normalizeLogoUrl(settings.darkLogoUrl);
+    const normalizedNavbarLogoUrl = normalizeLogoUrl(
+        settings.navbarLogoUrl || settings.lightLogoUrl || settings.darkLogoUrl
+    );
+    const normalizedFooterLogoUrl = normalizeLogoUrl(
+        settings.footerLogoUrl || settings.darkLogoUrl || settings.lightLogoUrl
+    );
+
     return {
         _id: settings._id.toString(),
         storeName: settings.storeName || 'China Unique Store',
         supportEmail: settings.supportEmail || '',
         businessAddress: settings.businessAddress || '',
-        lightLogoUrl: normalizeLogoUrl(settings.lightLogoUrl),
-        darkLogoUrl: normalizeLogoUrl(settings.darkLogoUrl),
+        lightLogoUrl: normalizedLightLogoUrl,
+        darkLogoUrl: normalizedDarkLogoUrl,
+        navbarLogoUrl: normalizedNavbarLogoUrl,
+        footerLogoUrl: normalizedFooterLogoUrl,
         logoScalePercent: Math.min(200, Math.max(60, Number(settings.logoScalePercent || 100))),
         whatsappNumber: settings.whatsappNumber || '',
         facebookPageUrl: settings.facebookPageUrl || '',
@@ -112,6 +123,8 @@ export async function PUT(req) {
             'businessAddress',
             'lightLogoUrl',
             'darkLogoUrl',
+            'navbarLogoUrl',
+            'footerLogoUrl',
             'logoScalePercent',
             'whatsappNumber',
             'facebookPageUrl',
@@ -137,7 +150,7 @@ export async function PUT(req) {
                 updates[key] =
                     key === 'announcementBarMessages'
                         ? normalizeAnnouncementMessages(body[key], body.announcementBarText)
-                        : key === 'lightLogoUrl' || key === 'darkLogoUrl'
+                        : key === 'lightLogoUrl' || key === 'darkLogoUrl' || key === 'navbarLogoUrl' || key === 'footerLogoUrl'
                             ? normalizeLogoUrl(body[key])
                         : key === 'logoScalePercent'
                             ? Math.min(200, Math.max(60, Number(body[key]) || 100))
