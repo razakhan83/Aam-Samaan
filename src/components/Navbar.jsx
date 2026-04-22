@@ -1,0 +1,566 @@
+'use client';
+
+import dynamic from 'next/dynamic';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import {
+  ChevronDown,
+  LayoutGrid,
+  Menu,
+  Search,
+  ShoppingBag,
+  Sparkles,
+  Store,
+  Tag,
+  X,
+} from 'lucide-react';
+
+import { useCartActions, useCartItems, useCartUi } from '@/context/CartContext';
+import { Button } from '@/components/ui/button';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import {
+  Sheet,
+  SheetContent,
+} from '@/components/ui/sheet';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarSeparator,
+} from '@/components/ui/sidebar';
+import StoreLogo from '@/components/StoreLogo';
+import { cn } from '@/lib/utils';
+
+const MyOrdersButton = dynamic(() => import('@/components/MyOrdersButton'), {
+  ssr: false,
+  loading: () => <div className="min-h-10 rounded-xl bg-sidebar-accent/25" aria-hidden="true" />,
+});
+
+const MyWishlistButton = dynamic(() => import('@/components/MyWishlistButton'), {
+  ssr: false,
+  loading: () => <div className="min-h-10 rounded-xl bg-sidebar-accent/25" aria-hidden="true" />,
+});
+
+const AuthModal = dynamic(() => import('@/components/AuthModal'), {
+  ssr: false,
+  loading: () => null,
+});
+
+const NavbarSearchPanel = dynamic(() => import('@/components/NavbarSearchPanel'), {
+  loading: () => <div className="min-h-12 rounded-xl border border-border/70 bg-card/95" aria-hidden="true" />,
+});
+
+const NavbarDesktopAccountControl = dynamic(() => import('@/components/NavbarDesktopAccountControl'), {
+  ssr: false,
+  loading: () => <div className="hidden md:block md:size-11 md:rounded-2xl md:bg-muted/45" aria-hidden="true" />,
+});
+
+const NavbarSidebarFooter = dynamic(() => import('@/components/NavbarSidebarFooter'), {
+  ssr: false,
+  loading: () => <div className="min-h-10 w-full rounded-xl bg-muted/45" aria-hidden="true" />,
+});
+
+function normalizeAnnouncementItems(messages = [], announcementText = '') {
+  const rawMessages = Array.isArray(messages) && messages.length > 0
+    ? messages
+    : String(announcementText || '')
+        .split(/\r?\n|[|•]+/)
+        .map((text, index) => ({ id: `legacy-${index + 1}`, text, isActive: true }));
+
+  return rawMessages
+    .filter((item) => item?.isActive !== false)
+    .map((item) => String(item?.text || '').trim())
+    .filter(Boolean);
+}
+
+function AnnouncementMarquee({ items = [] }) {
+  if (items.length === 0) return null;
+
+  const totalCharacters = items.reduce((count, item) => count + item.length, 0);
+  const durationSeconds = Math.min(120, Math.max(56, totalCharacters * 0.7));
+
+  const marqueeItems = Array.from({ length: 6 }, (_, repeatIndex) =>
+    items.map((text) => ({
+      id: `${repeatIndex}-${text}`,
+      text,
+    }))
+  ).flat();
+
+  return (
+    <div
+      className="announcement-marquee mask-edge"
+      style={{ '--announcement-marquee-duration': `${durationSeconds}s` }}
+    >
+      <div className="announcement-marquee__track">
+        {[0, 1].map((copyIndex) => (
+          <div
+            key={copyIndex}
+            className="announcement-marquee__content"
+            aria-hidden={copyIndex === 1 ? 'true' : undefined}
+          >
+            {marqueeItems.map(({ id, text }, index) => (
+              <span key={`${copyIndex}-${id}`} className="announcement-marquee__item">
+                <span className="announcement-marquee__label">{text}</span>
+                {index < marqueeItems.length - 1 ? (
+                  <span className="announcement-marquee__separator" aria-hidden="true">
+                    <Sparkles className="size-3.5" />
+                  </span>
+                ) : null}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function NavbarContent({
+  categories,
+  storeName = 'China Unique Store',
+  lightLogoUrl = '',
+  darkLogoUrl = '',
+  logoScalePercent = 100,
+  announcementBarEnabled = true,
+  announcementBarText = '',
+  announcementBarMessages = [],
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { cartCount = 0, isInitialized: isCartInitialized = false } = useCartItems() || {};
+  const { activeCategory = 'all', isSidebarOpen = false } = useCartUi() || {};
+  const {
+    setActiveCategory = () => {},
+    setIsSidebarOpen = () => {},
+    openSidebar = () => {},
+    openCart = () => {},
+  } = useCartActions() || {};
+
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAccountDrawerOpen, setIsAccountDrawerOpen] = useState(false);
+  const closeCategoriesTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (closeCategoriesTimeoutRef.current) {
+        window.clearTimeout(closeCategoriesTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  function handleCategoryClick(categoryId) {
+    setActiveCategory(categoryId);
+    setIsSidebarOpen(false);
+    setIsCategoriesOpen(false);
+    const url = categoryId === 'all' ? '/products' : `/products?category=${categoryId}`;
+    router.push(url, { scroll: true });
+  }
+
+  function handleSearchToggle() {
+    setIsSidebarOpen(false);
+    setIsAccountDrawerOpen(false);
+    setIsSearchOpen((value) => !value);
+  }
+
+  function handleSearchOpenChange(open) {
+    const nextOpen = open === true;
+
+    if (nextOpen) {
+      setIsSidebarOpen(false);
+      setIsAccountDrawerOpen(false);
+    }
+
+    setIsSearchOpen(nextOpen);
+  }
+
+  function handleMobileNavigate(href) {
+    setIsSearchOpen(false);
+    setIsAccountDrawerOpen(false);
+    router.push(href);
+  }
+
+  function handleAccountDrawerChange(open) {
+    if (open) {
+      setIsSearchOpen(false);
+      setIsSidebarOpen(false);
+    }
+    setIsAccountDrawerOpen(open);
+  }
+
+  function navLinkClass(path) {
+    return cn(
+      'inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-sm transition-[color,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] active:scale-[0.96]',
+      pathname === path
+        ? 'font-bold text-primary'
+        : 'font-medium text-muted-foreground hover:text-foreground'
+    );
+  }
+
+  function desktopNavButtonClass(isActive = false) {
+    return cn(
+      'inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-sm transition-[color,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] active:scale-[0.96]',
+      isActive
+        ? 'font-bold text-primary'
+        : 'font-medium text-muted-foreground hover:text-foreground'
+    );
+  }
+
+  function cancelCategoriesClose() {
+    if (closeCategoriesTimeoutRef.current) {
+      window.clearTimeout(closeCategoriesTimeoutRef.current);
+      closeCategoriesTimeoutRef.current = null;
+    }
+  }
+
+  function scheduleCategoriesClose() {
+    cancelCategoriesClose();
+    closeCategoriesTimeoutRef.current = window.setTimeout(() => {
+      setIsCategoriesOpen(false);
+      closeCategoriesTimeoutRef.current = null;
+    }, 120);
+  }
+
+  const mobileItems = [
+    { href: '/', label: 'Home', icon: Store },
+    { href: '/products', label: 'All Products', icon: LayoutGrid },
+  ];
+  const mobileMenuButtonClass =
+    'min-h-10 rounded-xl px-2.5 py-2 text-sidebar-foreground transition-[background-color,color,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-sidebar-accent/45 hover:text-sidebar-accent-foreground data-[active=true]:text-sidebar-primary-foreground active:scale-[0.99]';
+  const navActionButtonClass =
+    'nav-icon-button relative rounded-2xl border border-border/60 bg-card/85 p-0 text-foreground transition-[transform,background-color,border-color,color] duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:border-primary/18 hover:bg-background hover:text-foreground active:scale-[0.96]';
+  const announcementItems = normalizeAnnouncementItems(announcementBarMessages, announcementBarText);
+  const showAnnouncementBar = announcementBarEnabled && announcementItems.length > 0;
+
+  return (
+    <div className="navbar-shell sticky top-0 z-40 overflow-visible bg-card shadow-[0_1px_0_color-mix(in_oklab,var(--color-border)_72%,white)]">
+      {showAnnouncementBar ? (
+        <div className="relative flex min-h-9 items-center bg-primary py-2 text-primary-foreground shadow-[inset_0_-1px_0_rgba(255,255,255,0.08)] before:absolute before:-top-px before:left-0 before:right-0 before:h-px before:bg-primary before:content-['']">
+          <AnnouncementMarquee items={announcementItems} />
+        </div>
+      ) : null}
+
+      <header className="relative z-20 mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
+        <Button variant="ghost" size="icon" onClick={openSidebar} aria-label="Open menu" className="md:hidden">
+          <Menu />
+        </Button>
+
+        <StoreLogo
+          storeName={storeName}
+          lightLogoUrl={lightLogoUrl}
+          darkLogoUrl={darkLogoUrl}
+          logoScalePercent={logoScalePercent}
+          variant="light-surface"
+          priority
+          className="absolute left-1/2 -translate-x-1/2 md:static md:left-auto md:translate-x-0"
+        />
+
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex">
+          <Link href="/" className={navLinkClass('/')}>Home</Link>
+          <Link href="/products" scroll={true} className={navLinkClass('/products')}>All Products</Link>
+          <DropdownMenu open={isCategoriesOpen} onOpenChange={setIsCategoriesOpen}>
+            <div
+              onPointerEnter={() => {
+                cancelCategoriesClose();
+                setIsCategoriesOpen(true);
+              }}
+              onPointerLeave={scheduleCategoriesClose}
+            >
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    desktopNavButtonClass(isCategoriesOpen),
+                    'gap-2'
+                  )}
+                >
+                  Categories
+                  <ChevronDown className={cn('size-4 transition-transform', isCategoriesOpen && 'rotate-180')} />
+                </Button>
+              </DropdownMenuTrigger>
+            </div>
+            <DropdownMenuContent
+              className="w-60 p-1"
+              align="start"
+              sideOffset={8}
+              onPointerEnter={cancelCategoriesClose}
+              onPointerLeave={scheduleCategoriesClose}
+            >
+              <DropdownMenuItem onClick={() => handleCategoryClick('new-arrivals')}>
+                <Sparkles className="text-accent-foreground" />
+                <span>New Arrivals</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleCategoryClick('special-offers')}>
+                <Tag className="text-accent-foreground" />
+                <span>Special Offers</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              {categories.filter(c => c.id !== 'special-offers' && c.id !== 'new-arrivals').map((category) => (
+                <DropdownMenuItem
+                  key={category.id}
+                  onClick={() => handleCategoryClick(category.id)}
+                >
+                  <Tag className="text-muted-foreground" />
+                  <span>{category.label}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </nav>
+
+        <div className="ml-auto flex items-center gap-2 self-center">
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            onClick={handleSearchToggle}
+            aria-label="Toggle search"
+            aria-expanded={isSearchOpen}
+            className={cn(
+              `nav-search-toggle hidden overflow-hidden md:inline-flex ${navActionButtonClass}`,
+              isSearchOpen
+                ? 'is-open border-primary/18 bg-background text-primary'
+                : ''
+            )}
+          >
+            <span className="relative flex size-5 items-center justify-center">
+              <Search className={cn('navbar-toggle-icon navbar-toggle-icon-search', isSearchOpen && 'is-hidden')} />
+              <X className={cn('navbar-toggle-icon navbar-toggle-icon-close', isSearchOpen && 'is-visible')} />
+            </span>
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-lg"
+            onClick={openCart}
+            className={`nav-cart-button overflow-visible ${navActionButtonClass}`}
+            aria-label="Open cart"
+          >
+            <span className="relative flex size-5 items-center justify-center">
+              <ShoppingBag className="size-[1.05rem]" />
+            </span>
+            {isCartInitialized ? (
+              cartCount > 0 ? (
+                <span className="absolute -right-2 -top-2 inline-flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold leading-none text-primary-foreground">
+                  {cartCount}
+                </span>
+              ) : null
+            ) : (
+              <span className="absolute -right-2 -top-2 inline-flex size-5 items-center justify-center rounded-full bg-primary text-[11px] font-semibold leading-none text-primary-foreground">
+                <span className="h-2.5 w-2.5 rounded-full bg-primary-foreground/70" />
+              </span>
+            )}
+          </Button>
+
+          <NavbarDesktopAccountControl navActionButtonClass={navActionButtonClass} />
+        </div>
+      </header>
+
+      <div
+        data-state={isSearchOpen ? 'open' : 'closed'}
+        aria-hidden={!isSearchOpen}
+        className={cn(
+          'navbar-search-shell absolute inset-x-0 top-full z-10 grid border-t bg-background/96 backdrop-blur transition-[grid-template-rows,opacity,border-color] duration-300 ease-[cubic-bezier(0.2,0,0,1)] md:bg-background/80',
+          isSearchOpen
+            ? 'md:relative md:inset-auto md:top-auto md:z-auto'
+            : 'md:absolute md:inset-x-0 md:top-full md:z-10',
+          isSearchOpen ? 'grid-rows-[1fr] overflow-visible border-border/70 opacity-100' : 'pointer-events-none grid-rows-[0fr] overflow-hidden border-transparent opacity-0'
+        )}
+      >
+        <div className="overflow-visible">
+          <div className="navbar-search-inner mx-auto max-w-4xl px-4 py-4">
+            {isSearchOpen ? (
+              <NavbarSearchPanel open={isSearchOpen} onOpenChange={handleSearchOpenChange} />
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      {isSidebarOpen ? (
+        <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+          <SheetContent
+            side="left"
+            showCloseButton={false}
+            className="w-screen min-w-0 max-w-none overflow-hidden border-r border-sidebar-border bg-sidebar p-0 text-sidebar-foreground sm:max-w-none md:w-[min(76vw,22rem)] md:min-w-[16rem] md:max-w-[22rem]"
+          >
+            <Sidebar className="h-full bg-transparent text-inherit">
+              <SidebarHeader className="border-b border-sidebar-border px-5 pb-4 pt-5">
+                <StoreLogo
+                  href="/"
+                  storeName={storeName}
+                  lightLogoUrl={lightLogoUrl}
+                  darkLogoUrl={darkLogoUrl}
+                  logoScalePercent={logoScalePercent}
+                  variant="light-surface"
+                  compact
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="max-w-full pl-3"
+                />
+              </SidebarHeader>
+
+              <SidebarContent>
+                <ScrollArea className="min-h-0 flex-1 px-3 py-3">
+                  <div className="flex min-h-full flex-col gap-3">
+                    <SidebarGroup className="gap-2 p-0">
+                      <SidebarGroupLabel>Main</SidebarGroupLabel>
+                      <SidebarGroupContent>
+                        <SidebarMenu>
+                          {mobileItems.map(({ href, label, icon: Icon }) => (
+                            <SidebarMenuItem key={href}>
+                              <SidebarMenuButton
+                                isActive={pathname === href}
+                                className={mobileMenuButtonClass}
+                                render={<Link href={href} onClick={() => setIsSidebarOpen(false)} />}
+                              >
+                                <Icon />
+                                <span>{label}</span>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          ))}
+                        </SidebarMenu>
+                      </SidebarGroupContent>
+                    </SidebarGroup>
+
+                    <SidebarGroup className="gap-2 p-0">
+                      <SidebarGroupLabel>Categories</SidebarGroupLabel>
+                      <SidebarGroupContent>
+                    <Accordion className="w-full">
+                          <AccordionItem value="categories" className="border-none">
+                            <AccordionTrigger className="rounded-xl px-2.5 py-2 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent/45 hover:text-sidebar-accent-foreground hover:no-underline [&[aria-expanded=true]]:bg-sidebar-accent/35">
+                              <div className="flex items-center gap-3">
+                                <LayoutGrid className="size-4" />
+                                <span>Shop by Category</span>
+                              </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="px-0 pt-2 pb-0">
+                              <SidebarMenu>
+                                <SidebarMenuItem>
+                                  <SidebarMenuButton
+                                    isActive={activeCategory === 'new-arrivals'}
+                                    onClick={() => handleCategoryClick('new-arrivals')}
+                                    className={mobileMenuButtonClass}
+                                  >
+                                    <Sparkles />
+                                    <span>New Arrivals</span>
+                                  </SidebarMenuButton>
+                                </SidebarMenuItem>
+                                <SidebarMenuItem>
+                                  <SidebarMenuButton
+                                    isActive={activeCategory === 'special-offers'}
+                                    onClick={() => handleCategoryClick('special-offers')}
+                                    className={mobileMenuButtonClass}
+                                  >
+                                    <Tag />
+                                    <span>Special Offers</span>
+                                  </SidebarMenuButton>
+                                </SidebarMenuItem>
+                                {categories.filter(c => c.id !== 'special-offers' && c.id !== 'new-arrivals').map((category) => (
+                                  <SidebarMenuItem key={category.id}>
+                                    <SidebarMenuButton
+                                      isActive={activeCategory === category.id}
+                                      onClick={() => handleCategoryClick(category.id)}
+                                      className={mobileMenuButtonClass}
+                                    >
+                                      <Tag />
+                                      <span>{category.label}</span>
+                                    </SidebarMenuButton>
+                                  </SidebarMenuItem>
+                                ))}
+                              </SidebarMenu>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </SidebarGroupContent>
+                    </SidebarGroup>
+
+                    <SidebarSeparator />
+
+                    <SidebarGroup className="gap-2 p-0">
+                      <SidebarGroupLabel>Account</SidebarGroupLabel>
+                      <SidebarGroupContent className="flex flex-col gap-1">
+                        <MyOrdersButton
+                          isMobile
+                          className={mobileMenuButtonClass}
+                        />
+                        <MyWishlistButton
+                          isMobile
+                          className={mobileMenuButtonClass}
+                        />
+                      </SidebarGroupContent>
+                    </SidebarGroup>
+                  </div>
+                </ScrollArea>
+              </SidebarContent>
+
+              <SidebarFooter className="border-t border-sidebar-border px-3 pb-3 pt-3">
+                <NavbarSidebarFooter
+                  mobileMenuButtonClass={mobileMenuButtonClass}
+                  onCloseSidebar={() => setIsSidebarOpen(false)}
+                  onOpenAuth={() => setIsAuthModalOpen(true)}
+                />
+              </SidebarFooter>
+            </Sidebar>
+          </SheetContent>
+        </Sheet>
+      ) : null}
+
+      <MobileBottomNav
+        pathname={pathname}
+        isSearchOpen={isSearchOpen}
+        onSearchOpenChange={handleSearchOpenChange}
+        accountOpen={isAccountDrawerOpen}
+        onAccountOpenChange={handleAccountDrawerChange}
+        isAuthOpen={isAuthModalOpen}
+        onAuthOpenChange={setIsAuthModalOpen}
+        onNavigate={handleMobileNavigate}
+      />
+      {isAuthModalOpen ? <AuthModal open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen} /> : null}
+    </div>
+  );
+}
+
+export default function Navbar({
+  categories = [],
+  storeName = 'China Unique Store',
+  lightLogoUrl = '',
+  darkLogoUrl = '',
+  logoScalePercent = 100,
+  announcementBarEnabled = true,
+  announcementBarText = '',
+  announcementBarMessages = [],
+}) {
+  return (
+    <NavbarContent
+      categories={categories}
+      storeName={storeName}
+      lightLogoUrl={lightLogoUrl}
+      darkLogoUrl={darkLogoUrl}
+      logoScalePercent={logoScalePercent}
+      announcementBarEnabled={announcementBarEnabled}
+      announcementBarText={announcementBarText}
+      announcementBarMessages={announcementBarMessages}
+    />
+  );
+}
