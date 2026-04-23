@@ -66,8 +66,8 @@ function MobileNavButton({
         onPointerUp={() => setIsPressed(false)}
         onPointerLeave={() => setIsPressed(false)}
         className={cn(
-          'group flex min-w-0 flex-1 flex-col items-center gap-1 text-muted-foreground transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:text-foreground active:text-primary',
-          active && 'text-primary'
+          'group flex min-w-0 flex-1 flex-col items-center gap-1 text-muted-foreground transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:text-[oklch(0.58_0.21_41)] active:text-[oklch(0.58_0.21_41)]',
+          active && 'text-[oklch(0.58_0.21_41)]'
         )}
       >
         {content}
@@ -84,8 +84,8 @@ function MobileNavButton({
       onPointerUp={() => setIsPressed(false)}
       onPointerLeave={() => setIsPressed(false)}
       className={cn(
-        'group flex min-w-0 flex-1 flex-col items-center gap-1 text-muted-foreground transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:text-foreground active:text-primary',
-        active && 'text-primary'
+        'group flex min-w-0 flex-1 flex-col items-center gap-1 text-muted-foreground transition-colors duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:text-[oklch(0.58_0.21_41)] active:text-[oklch(0.58_0.21_41)]',
+        active && 'text-[oklch(0.58_0.21_41)]'
       )}
     >
       {content}

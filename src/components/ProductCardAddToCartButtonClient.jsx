@@ -63,8 +63,12 @@ export default function ProductCardAddToCartButtonClient({ product, isOutOfStock
 
   if (isOutOfStock) {
     return (
-      <span className="inline-flex min-h-8 items-center justify-center rounded-md border border-border bg-muted/35 px-2.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
-        Out of Stock
+      <span
+        className="inline-flex min-h-8 max-w-[5.8rem] shrink-0 items-center justify-center rounded-md border border-border bg-muted/45 px-2 text-center text-[9px] font-bold uppercase leading-none tracking-[0.08em] text-muted-foreground sm:max-w-none sm:px-2.5 sm:text-[10px] sm:tracking-[0.12em]"
+        aria-label="Out of stock"
+      >
+        <span className="sm:hidden">Sold Out</span>
+        <span className="hidden sm:inline">Out of Stock</span>
       </span>
     );
   }

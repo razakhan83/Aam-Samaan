@@ -33,8 +33,10 @@ export default function StoreLogo({
   darkLogoUrl = '',
   logoUrl = '',
   logoScalePercent = 100,
+  logoHeight,
   variant = 'dark-surface',
   className,
+  logoClassName,
   priority = false,
   compact = false,
   onClick,
@@ -44,7 +46,8 @@ export default function StoreLogo({
   const fallbackLogoUrl = prefersLightLogo ? darkLogoUrl : lightLogoUrl;
   const resolvedLogoUrl = String(logoUrl || '').trim() || String(preferredLogoUrl || '').trim() || String(fallbackLogoUrl || '').trim();
   const hasLogo = Boolean(String(resolvedLogoUrl || '').trim());
-  const baseHeight = compact ? 52 : 48;
+  const baseHeight = logoHeight || (compact ? 58 : 56);
+  const logoHeightValue = typeof baseHeight === 'number' ? `${baseHeight}px` : baseHeight;
   const safeScalePercent = Math.min(200, Math.max(60, Number(logoScalePercent) || 100));
   const logoScale = 1 + ((safeScalePercent - 100) / 100) * 1.9;
 
@@ -53,7 +56,7 @@ export default function StoreLogo({
       {hasLogo ? (
         <div
           className="flex shrink-0 items-center overflow-visible"
-          style={{ height: `${baseHeight}px` }}
+          style={{ height: logoHeightValue }}
         >
           <Image
             src={resolvedLogoUrl}
@@ -62,8 +65,8 @@ export default function StoreLogo({
             height={80}
             priority={priority}
             sizes={compact ? '208px' : '192px'}
-            className="h-auto w-auto object-contain origin-left-center"
-            style={{ height: `${baseHeight}px`, transform: `translateY(3px) scale(${logoScale})` }}
+            className={cn('h-auto w-auto object-contain origin-left-center', logoClassName)}
+            style={{ height: logoHeightValue, transform: `translateY(3px) scale(${logoScale})` }}
           />
         </div>
       ) : (

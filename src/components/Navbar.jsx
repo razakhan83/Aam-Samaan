@@ -252,21 +252,27 @@ function NavbarContent({
   const mobileMenuButtonClass =
     'min-h-10 rounded-xl px-2.5 py-2 text-sidebar-foreground transition-[background-color,color,transform] duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-white/10 hover:text-white data-[active=true]:bg-white/14 data-[active=true]:text-white data-[active=true]:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)] active:scale-[0.99]';
   const navActionButtonClass =
-    'nav-icon-button relative rounded-2xl border border-white/14 bg-white/6 p-0 text-white transition-[transform,background-color,border-color,color] duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:border-white/30 hover:bg-white/12 hover:text-white active:scale-[0.96]';
+    'nav-icon-button relative size-12 rounded-2xl border border-white/14 bg-white/6 p-0 text-white transition-[transform,background-color,border-color,color] duration-200 ease-[cubic-bezier(0.2,0,0,1)] hover:border-white/30 hover:bg-white/12 hover:text-white active:scale-[0.96] [&_svg]:size-6';
   const announcementItems = normalizeAnnouncementItems(announcementBarMessages, announcementBarText);
   const showAnnouncementBar = announcementBarEnabled && announcementItems.length > 0;
 
   return (
     <div className="navbar-shell sticky top-0 z-40 overflow-visible bg-primary text-primary-foreground shadow-[0_1px_0_rgba(255,255,255,0.08)]">
       {showAnnouncementBar ? (
-        <div className="relative flex min-h-9 items-center bg-accent py-2 text-accent-foreground shadow-[inset_0_-1px_0_rgba(255,255,255,0.14)] before:absolute before:-top-px before:left-0 before:right-0 before:h-px before:bg-accent before:content-['']">
+        <div className="relative flex min-h-6 items-center bg-accent py-1 text-accent-foreground shadow-[inset_0_-1px_0_rgba(255,255,255,0.14)] before:absolute before:-top-px before:left-0 before:right-0 before:h-px before:bg-accent before:content-['']">
           <AnnouncementMarquee items={announcementItems} />
         </div>
       ) : null}
 
-      <header className="relative z-20 mx-auto flex h-16 max-w-7xl items-center gap-3 px-4">
-        <Button variant="ghost" size="icon" onClick={openSidebar} aria-label="Open menu" className="md:hidden">
-          <Menu />
+      <header className="relative z-20 mx-auto flex h-[4.8rem] max-w-7xl items-center gap-3 px-4 md:h-[5.4rem]">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={openSidebar}
+          aria-label="Open menu"
+          className="size-12 rounded-2xl !text-white hover:!bg-white/10 hover:!text-white aria-expanded:!bg-white/10 aria-expanded:!text-white md:hidden [&_svg]:!size-7 [&_svg]:!text-white"
+        >
+          <Menu strokeWidth={2.6} />
         </Button>
 
         <StoreLogo
@@ -277,6 +283,8 @@ function NavbarContent({
           logoScalePercent={logoScalePercent}
           variant="light-surface"
           priority
+          logoHeight="clamp(66px, 10vw, 76px)"
+          logoClassName="h-[4.15rem] md:h-[4.7rem]"
           className="absolute left-1/2 -translate-x-1/2 md:static md:left-auto md:translate-x-0"
         />
 
@@ -361,7 +369,7 @@ function NavbarContent({
             aria-label="Open cart"
           >
             <span className="relative flex size-5 items-center justify-center">
-              <ShoppingBag className="size-[1.05rem]" />
+              <ShoppingBag strokeWidth={2.5} />
             </span>
             {isCartInitialized ? (
               cartCount > 0 ? (
@@ -418,6 +426,8 @@ function NavbarContent({
                   logoScalePercent={logoScalePercent}
                   variant="light-surface"
                   compact
+                  logoHeight={68}
+                  logoClassName="h-[4.25rem]"
                   onClick={() => setIsSidebarOpen(false)}
                   className="max-w-full pl-3"
                 />

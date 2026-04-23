@@ -119,10 +119,22 @@ export default function CartDrawer({ whatsappNumber = '', storeName = 'China Uni
 
   return (
     <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-      <SheetContent side="right" className="data-[side=right]:w-full w-full min-w-0 max-w-none gap-0 bg-[linear-gradient(180deg,color-mix(in_oklab,var(--color-card)_97%,white),color-mix(in_oklab,var(--color-muted)_38%,white))] p-0 sm:data-[side=right]:w-screen sm:w-screen sm:max-w-none md:data-[side=right]:w-[min(70vw,28rem)] md:w-[min(70vw,28rem)] md:min-w-[18rem] md:max-w-[28rem]">
+      <SheetContent
+        side="right"
+        className="data-[side=right]:w-full w-full min-w-0 max-w-none gap-0 bg-[linear-gradient(180deg,color-mix(in_oklab,var(--color-card)_97%,white),color-mix(in_oklab,var(--color-muted)_38%,white))] p-0 text-foreground sm:data-[side=right]:w-screen sm:w-screen sm:max-w-none md:data-[side=right]:w-[min(70vw,28rem)] md:w-[min(70vw,28rem)] md:min-w-[18rem] md:max-w-[28rem]"
+        style={{
+          '--color-sidebar': 'var(--color-card)',
+          '--color-sidebar-foreground': 'var(--color-foreground)',
+          '--color-sidebar-primary': 'var(--color-primary)',
+          '--color-sidebar-primary-foreground': 'var(--color-primary-foreground)',
+          '--color-sidebar-accent': 'var(--color-muted)',
+          '--color-sidebar-accent-foreground': 'var(--color-foreground)',
+          '--color-sidebar-border': 'var(--color-border)',
+        }}
+      >
         <Sidebar className="h-full bg-transparent text-inherit">
-          <SidebarHeader className="border-b border-sidebar-border px-5 pb-4 pt-5">
-            <p className="text-lg font-semibold text-sidebar-foreground [text-wrap:balance]">Your Cart</p>
+          <SidebarHeader className="border-b border-border px-5 pb-4 pt-5">
+            <p className="text-lg font-semibold text-foreground [text-wrap:balance]">Your Cart</p>
           </SidebarHeader>
 
           <SidebarContent>
@@ -130,7 +142,7 @@ export default function CartDrawer({ whatsappNumber = '', storeName = 'China Uni
               {cart.length ? (
                 <SidebarGroup className="gap-3 p-0">
                   <div className="flex items-center justify-between gap-3 px-1 py-0.5">
-                    <SidebarGroupLabel className="px-0 text-sidebar-foreground/65">
+                    <SidebarGroupLabel className="px-0 text-foreground/65">
                       Cart Items ({cartCount})
                     </SidebarGroupLabel>
                     <Button
@@ -280,7 +292,7 @@ export default function CartDrawer({ whatsappNumber = '', storeName = 'China Uni
           </SidebarContent>
 
           {cart.length ? (
-            <SidebarFooter className="gap-3 border-t border-sidebar-border bg-sidebar px-5 pb-5 pt-4">
+            <SidebarFooter className="gap-3 border-t border-border bg-card px-5 pb-5 pt-4">
               <Card size="sm" className="gap-0 border border-sidebar-border/80 bg-muted/30 py-0 shadow-[inset_0_1px_0_color-mix(in_oklab,white_72%,transparent)]">
                 <CardHeader className="flex flex-row items-center justify-between gap-3 px-4 py-3">
                   <CardTitle className="text-sm">Subtotal</CardTitle>
@@ -291,7 +303,10 @@ export default function CartDrawer({ whatsappNumber = '', storeName = 'China Uni
               </Card>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton onClick={handleWhatsAppDirectCheckout}>
+                  <SidebarMenuButton
+                    onClick={handleWhatsAppDirectCheckout}
+                    className="border border-border bg-white text-foreground shadow-none hover:bg-muted hover:text-foreground"
+                  >
                     <WhatsAppIcon className="size-5" />
                     <span>Order on WhatsApp</span>
                   </SidebarMenuButton>
@@ -299,6 +314,7 @@ export default function CartDrawer({ whatsappNumber = '', storeName = 'China Uni
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     isActive
+                    className="bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground"
                     render={<Link href="/checkout" onClick={() => setIsCartOpen(false)} className="w-full" />}
                   >
                     <span>Checkout</span>
