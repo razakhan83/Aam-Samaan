@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight, CreditCard, MapPin, Truck } from 'lucide-react';
 
@@ -14,6 +15,30 @@ import { createWhatsAppUrl } from '@/lib/whatsapp';
 function NavbarFallback() {
   return <div className="sticky top-0 z-40 h-[100px] bg-card" aria-hidden="true" />;
 }
+
+const PAYMENT_METHODS = [
+  {
+    label: 'Easypaisa',
+    src: '/easypaisa-new-logo-0B6AAF8329-seeklogo.com-removebg-preview.png.webp',
+    width: 150,
+    height: 48,
+    className: 'max-h-12',
+  },
+  {
+    label: 'JazzCash',
+    src: '/JazzCash.webp',
+    width: 150,
+    height: 48,
+    className: 'max-h-9',
+  },
+  {
+    label: 'Cash on Delivery',
+    src: '/Cash_On_Delivery__Cash__Delivery_PNG_Image_For_Free_Download-removebg-preview-1.png.webp',
+    width: 150,
+    height: 48,
+    className: 'max-h-14',
+  },
+];
 
 export default function LayoutWrapper({ children, categories, settings }) {
   const whatsappLink = createWhatsAppUrl(settings.whatsappNumber);
@@ -44,10 +69,10 @@ export default function LayoutWrapper({ children, categories, settings }) {
 
         <main className="flex-grow">{children}</main>
 
-        <footer className="mt-auto border-t border-border bg-white pb-[calc(env(safe-area-inset-bottom)+var(--mobile-bottom-nav-offset))] pt-12 text-foreground md:pb-6">
+        <footer className="mt-auto border-t border-border bg-white pb-[calc(env(safe-area-inset-bottom)+var(--mobile-bottom-nav-offset))] pt-10 text-foreground md:pb-7 md:pt-12">
           <div className="container mx-auto max-w-7xl px-4">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-              <div>
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-[1.35fr_0.8fr_1fr_1.1fr] lg:gap-10">
+              <div className="sm:col-span-2 lg:col-span-1">
                 <StoreLogo
                   storeName={settings.storeName}
                   logoUrl={settings.footerLogoUrl}
@@ -58,7 +83,7 @@ export default function LayoutWrapper({ children, categories, settings }) {
                   compact
                   className="mb-4"
                 />
-                <p className="max-w-sm leading-relaxed text-muted-foreground">
+                <p className="max-w-sm text-sm leading-relaxed text-muted-foreground md:text-base">
                   A premium destination for kitchenware, home decor, and lifestyle pieces chosen for everyday elegance.
                 </p>
                 <div className="mt-5 flex gap-3">
@@ -81,7 +106,7 @@ export default function LayoutWrapper({ children, categories, settings }) {
               </div>
               <div>
                 <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">Quick Links</h3>
-                <ul className="flex flex-col gap-3 text-muted-foreground">
+                <ul className="flex flex-col gap-3 text-sm text-muted-foreground md:text-base">
                   {[
                     { href: '/about-us', label: 'About Us' },
                     { href: '/refund-policy', label: 'Refund Policy' },
@@ -99,7 +124,7 @@ export default function LayoutWrapper({ children, categories, settings }) {
               </div>
               <div>
                 <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">Contact</h3>
-                <ul className="flex flex-col gap-4 text-muted-foreground">
+                <ul className="flex flex-col gap-4 text-sm text-muted-foreground md:text-base">
                   <li className="flex items-start gap-3">
                     <WhatsAppIcon className="mt-1 size-4 shrink-0" />
                     <div>
@@ -125,13 +150,31 @@ export default function LayoutWrapper({ children, categories, settings }) {
                   </li>
                 </ul>
               </div>
+              <div className="sm:col-span-2 lg:col-span-1">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+                  {PAYMENT_METHODS.map((method) => (
+                    <Image
+                      key={method.label}
+                      src={method.src}
+                      alt={method.label}
+                      width={method.width}
+                      height={method.height}
+                      sizes="(max-width: 640px) 30vw, 118px"
+                      className={`${method.className} w-auto object-contain`}
+                    />
+                  ))}
+                </div>
+                <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                  Pay with Easypaisa, JazzCash, or cash on delivery across Pakistan.
+                </p>
+              </div>
             </div>
-            <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground md:flex-row">
-              <p>&copy; China Unique Store. All rights reserved.</p>
-              <div className="flex items-center gap-3">
+            <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-border pt-6 text-center text-xs text-muted-foreground sm:text-left md:flex-row">
+              <p>&copy; {settings.storeName || 'China Unique Store'}. All rights reserved.</p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
                 <span className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-foreground">
                   <CreditCard className="size-4" />
-                  Secure checkout
+                  Secure payment options
                 </span>
               </div>
             </div>
